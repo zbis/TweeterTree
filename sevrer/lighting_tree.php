@@ -1,6 +1,8 @@
 <?php
     include('twitterParser.class.php');
     $fromShield = isset($_GET['fromShield']);
+    //configuration d'un shield
+    //enregistrement d'un shield
     try {
     // Nouvel objet de base SQLite 
     $db_handle = new PDO('sqlite:lighting_tree.sqlite');
@@ -13,13 +15,9 @@
     //TODO login/Password identification
         if(isset($_GET['shield_id']) && $_GET['shield_id']!='')
         {
-            $shield_id = strtolower($_GET['shield_id']);
-            $result = $db_handle->query("SELECT * FROM requests WHERE (shield_id = '$shield_id') LIMIT 1");
-            $shield_request = $result->fetch();
-            if($shield_request) //this shield already requested API
-            {
-                $since = $shield_request['last_request'];
-            } else {// it's first shield request with this id so we start new session for it
+            $since = get_last_request($shield_id); 
+            if(!$since)
+                // it's first shield request with this id so we start new session for it
                  $sql = "INSERT INTO requests (shield_id) VALUES (:shield_id)";
                  $sth = $db_handle->prepare($sql);
                  $sth->bindParam(':shield_id', $shield_id);
@@ -40,36 +38,5 @@
         die('Exception :'.$e);
     }
 
-    /*
-     * Configuration
-     */
-    $hastag = '#sachezle';  
-
-    // Twitter parser request twitter API and return Tweets Objects
-    $twitter = new twitterParser();
     
-    $query = 'q='.urlencode($hastag);
-
-    //Add last tweet ID on request, if it's on database
-    if(isset($since)) 
-    {
-        $query.='&since_id='.$since;
-    }
-    // get all tweets
-    $tweets = $twitter->getTweets($query);
-
-    //Have new tweet ? Save last Tweet ID on database for this shield
-    if(sizeof($tweets)>0){
-        try {
-            $lastTweetId = $tweets[0]->getID();
-            $sql = "UPDATE requests SET last_request=:last_request WHERE shield_id=:shield_id";
-            $sth = $db_handle->prepare($sql);
-            $sth->bindParam(':last_request', $lastTweetId); //first Tweet on table is last Tweet returned by API
-            $sth->bindParam(':shield_id', $shield_id);
-            $sth->execute();
-        } catch (Exception $e) {
-            die('Exception :'.$e);
-        }
-    } 
-	echo "<".sizeof($tweets).">";
 ?>

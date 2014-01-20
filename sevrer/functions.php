@@ -6,9 +6,9 @@
 function get_defaut_configuration()
 {
 	return array(
-		'hastags' 		=> '#allonsy',
-		'ledCount' 		=> 16, 
-		'blinkingTime' 	=> 1000,
+		'hastags'         => '#allonsy',
+		'led_count'       => 16, 
+		'blinking_time'   => 1000,
 		);
 }
 
@@ -16,11 +16,24 @@ function get_errors_message()
 {
 	return array(
 		'already_exist' 			=> 'Cette ID de shield est déjà prise',
-		'identification_failed' 	=> '',
-		'action_unknow' 			=> ' %f'
+		'identification_failed' 	=> 'Erreur lors de l\'indentification du shield',
+		'action_unknow' 			=> ' %f',
+        'shield_not_found'          => 'Shield introuvable. Vous pouvez l\'enregistrer en cliquant sur le bouton "Créer mon arbre"',
 		);
 }
-
+function get_success_message()
+{
+    return array(
+        'registered_shield' => 'Votre carte a bien été enregistrée',
+        'updated_shield' => 'Votre carte a bien été mise à jour. Merci de réinitialiser votre arbre.',
+        'identification_success' => 'Votre carte est correctement identifiée'
+        );
+}
+function get_notifications_message()
+{
+    return array(
+        );
+}
 /* 
 	END 	I - Application configuration
 	START 	II - Generique functions 
@@ -32,13 +45,14 @@ function getbdd()
 {
 	try {
 	    // Nouvel objet de base SQLite 
-    $db_handle = new PDO('sqlite:lighting_tree.sqlite');
-    // Quelques options
-    $db_handle->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    //first creat table if not exist
-    $db_handle->exec("CREATE TABLE IF NOT EXISTS requests (ID INTEGER PRIMARY KEY, shield_id TEXT, last_request TEXT);");
-	$db_handle->exec("CREATE TABLE IF NOT EXISTS shields (ID INTEGER PRIMARY KEY, shield_id TEXT, password TEXT, hashtags TEXT, led_count INT, blikning_time INT);");
-	retun $db_handle;
+        $db_handle = new PDO('sqlite:lighting_tree.sqlite');
+        // Quelques options
+        $db_handle->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        //first creat table if not exist
+        $db_handle->exec("CREATE TABLE IF NOT EXISTS requests (ID INTEGER PRIMARY KEY, shield_id TEXT, last_request TEXT);");
+    	$db_handle->exec("CREATE TABLE IF NOT EXISTS shields (ID INTEGER PRIMARY KEY, shield_id TEXT, password TEXT, hashtags TEXT, led_count INT, blinking_time INT);");
+    	return $db_handle;
+    }
 	catch (Exception $e) {
         if($fromShield)
             {
@@ -53,9 +67,13 @@ function do_query($query)
     return $db_handle->query($query);
 }
 
-function get_shield($shieldId)
+function get_shield($shieldId, $withPass = false)
 {
-	$result = do_query("SELECT * FROM shields WHERE (shield_id = '$shieldId') LIMIT 1");
+    $select = "shield_id, blinking_time, led_count, hashtags";
+    if($withPass) {
+        $select .= ", password ";
+    }
+	$result = do_query("SELECT $select FROM shields WHERE (shield_id = '$shieldId') LIMIT 1");
     //this shield already requested API
     return $result->fetch();
 }
@@ -73,18 +91,28 @@ function prepare_query($query, $shieldId)
 */
 function merge_configs($userconfig)
 {
-	$defaultconfig = get_default_config();
-	$config = array();
+	$defaultconfig = get_defaut_configuration();
 	foreach($defaultconfig as $key => $params) {
-		$config[$key] = (isset($userconfig[$key]) && $userconfig[$key] != '') ? $userconfig[$key]: $params;
+		$userconfig[$key] = (isset($userconfig[$key]) && $userconfig[$key] != '') ? $userconfig[$key]: $params;
 	}
-	return $config;
+	return $userconfig;
 }
 function get_error($key)
 {
 	$errors = get_errors_message();
-	reutrn $errors[$key];
+	return $errors[$key];
 }
+function get_message($key)
+{
+    $messages = get_success_message();
+    return $messages[$key];
+}
+function default_conf($key)
+{
+    $dconf = get_defaut_configuration();
+    return $dconf[$key];
+}
+
 /* 
 	END 	II 	- Generics function
 	START 	III - Getter and setters for all database column 
@@ -103,7 +131,7 @@ function add_hashtag($shieldId, $hastag)
 	$hastags = get_hashtags($shieldId);
 	if($hastags != '')
 	{
-		$hastag = $hastags.', '.$hastag
+		$hastag = $hastags.', '.$hastag;
 	}
 	set_hashtags($shieldId, $hastag);
 }
@@ -141,8 +169,8 @@ function get_blinking_time($shieldId)
 function set_blinking_time($shieldId, $blinkingTime)
 {
     try {
-    	$sth = prepare_query("UPDATE shields SET blikning_time=:blikning_time WHERE shield_id=:shield_id", $shieldId);
-        $sth->bindParam(':blikning_time', $blinkingTime);
+    	$sth = prepare_query("UPDATE shields SET blinking_time=:blinking_time WHERE shield_id=:shield_id", $shieldId);
+        $sth->bindParam(':blinking_time', $blinkingTime);
         $sth->execute();
     } catch (Exception $e) {
         die('Exception :'.$e);
@@ -200,8 +228,9 @@ function set_last_request($shieldId, $lastTweetId)
 
 function is_authorized($shieldId, $password)
 {
-	$shield = get_shield($shieldId);
-	return ($shied['password'] = md5($password));
+
+	$shield = get_shield($shieldId, true);
+	return ($shield['password'] == md5($password));
 }
 
 /*
@@ -211,17 +240,35 @@ function register_shield($shieldId, $userconfig = array())
 {
 	$config = merge_configs($userconfig);
     try {
-    	$sth = prepare_query( "INSERT INTO shields (shield_id, password, hashtags, led_count, blikning_time) VALUES (:shield_id, :password ,:hashtags, :led_count, :blikning_time)");
+        $password = md5($config['password']);
+    	$sth = prepare_query( "INSERT INTO shields (shield_id, password, hashtags, led_count, blinking_time) VALUES (:shield_id, :password ,:hashtags, :led_count, :blinking_time)", $shieldId);
 	    $sth->bindParam(':hashtags', $config['hastags']);
-	    $sth->bindParam(':led_count', $config['ledCount']);
-	    $sth->bindParam(':blikning_time', $config['blikningTime']);
-	    $sth->bindParam(':password', md5($config['password']));
+	    $sth->bindParam(':led_count', $config['led_count']);
+	    $sth->bindParam(':blinking_time', $config['blinking_time']);
+	    $sth->bindParam(':password', $password);
         return $sth->execute();
     } catch (Exception $e) {
         die('Exception :'.$e);
     }
 }
-
+function update_shield($shieldId, $userconfig = array())
+{
+    $config = merge_configs($userconfig);
+    try {
+        $password = md5($config['password']);
+        $sth = prepare_query( "UPDATE shields SET hashtags = :hashtags, led_count = :led_count, blinking_time = :blinking_time WHERE shield_id = :shield_id AND password = :password", $shieldId);
+        $sth->bindParam(':hashtags', $config['hastags']);
+        $sth->bindParam(':led_count', $config['led_count']);
+        $sth->bindParam(':blinking_time', $config['blinking_time']);
+        $sth->bindParam(':password', $password);
+        $shield =  $sth->execute();
+        set_last_request($shieldId, null);
+        //also, if we update shield, reinitialize led count.
+        return $shield;
+    } catch (Exception $e) {
+        die('Exception :'.$e);
+    }
+}
 /*
 	Get tweet count for specific shield
 	Use Twitter API
@@ -247,7 +294,7 @@ function get_tweets_count($shieldId)
     	$lastTweetId = $tweets[0]->getID();
     	set_last_request($shieldId, $lastTweetId);
     } 
-	reutrn $tweets;
+	return $tweets;
 }
 
 

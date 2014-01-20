@@ -56,9 +56,9 @@ include_once('functions.php');
 			 {base_url}/lasttweet/get/{shieldId}
 
 */
-$errors = array();
-
-if(((isset($_GET['shield_id']) && $_GET['shield_id'] =! null) OR (isset($_POST['shield_id']) && $_POST['shield_id'] =! null)) && isset($_GET['domain']))
+$messages = array();
+$responses = array();
+if(((isset($_GET['shield_id'])) OR (isset($_POST['shield_id']))) && isset($_GET['domain']))
 {
 	$shieldId = (isset($_GET['shield_id'])) ?  $_GET['shield_id'] : $_POST['shield_id'];
 	/*
@@ -76,26 +76,42 @@ if(((isset($_GET['shield_id']) && $_GET['shield_id'] =! null) OR (isset($_POST['
 					if(!get_shield($shieldId))
 					{
 						register_shield($shieldId, $_POST);
+						$messages[] =  array('type' =>'success', 'mess' => get_message('registered_shield'));
 					} else {
-						$errors[] = get_error('already_exist');
+						$messages[] =  array('type' =>'danger', 'mess' => get_error('already_exist'));
 					}
+				break;
+			case 'update':
+				$shield = get_shield($shieldId);
+				if($shield) {
+					if(isset($_POST['password']) && is_authorized($shieldId, $_POST['password']))
+					{
+						update_shield($shieldId, $_POST);
+						$messages[] =  array('type' =>'success', 'mess' => get_message('updated_shield'));
+					} else {
+						$messages[] =  array('type' =>'danger', 'mess' => get_error('bad_identification'));
+					}
+				} else {
+					$messages[] =  array('type' =>'danger', 'mess' => get_error('shield_not_found'));	
+				}
+
 				break;
 			default :
 				/* 
 					Update existing shield ? 
 					Okey let's check permissions
 				*/
-					if(isset($_POST['password'])) && is_authorized($shieldId, $_POST['password']))
+					if(isset($_POST['password']) && is_authorized($shieldId, $_POST['password']))
 					{
 						$functionName = $_GET['action'].$_GET['domain'];
 						if(function_exists($functionName))
 						{
 							$functionName($shieldId, $_POST[$_GET['domain']]);
 						} else {
-							$errors[] = get_error('action_unknow', $functionName);
+							$messages[] = array('type' =>'danger', 'mess' => get_error('action_unknow', $functionName));
 						}
 					} else {
-						$errors[] = get_error('identification_failed');
+						$messages[] = array('type' =>'danger', 'mess' => get_error('identification_failed'));
 					}
 				break;
 		}
@@ -104,19 +120,42 @@ if(((isset($_GET['shield_id']) && $_GET['shield_id'] =! null) OR (isset($_POST['
 		$functionName = 'get_'.$_GET['domain'];
 		if(function_exists($functionName))
 		{
-			echo '<'.$functionName($shieldId).'>';
+			$item = $functionName($shieldId);
+			if($item)
+			{
+				switch($_GET['domain']) {
+					case 'shield':
+						if(isset($_GET['password'])) //but if password send, it's for user modifications so need identification
+						{
+							if(is_authorized($shieldId, $_GET['password']))
+							{
+								$responses = array('autorisation' => true);
+								$messages[] =  array('type' =>'success', 'mess' => get_message('identification_success'));
+							} else {
+								$responses = array('autorisation' => false);
+								$messages[] =  array('type' =>'danger', 'mess' => get_error('identification_failed'));
+							}
+						}
+					default :
+						$responses[] = $item;
+				}
+			}
+			else {
+				$messages[] =  array('type' =>'danger', 'mess' => get_error($_GET['domain'].'_not_found'));
+			}
 		} else {
-			$errors[] = get_error('action_unknow', $functionName);
+			$messages[] =  array('type' =>'danger', 'mess' => get_error('action_unknow', $functionName));
 		}
 	}
 }
-
+$json = array();
 /* display errors*/
-if(isset($errors[0]))
+foreach($messages as $key => $message)
 {
-	echo "<error>";
-	foreach($errors as $error)
-	{
-		echo " ".$error;
-	}
+    $json['notifications'][] = array('typealert' => $message['type'], 'message' => $message['mess']);
+} 
+foreach($responses as $key => $response)
+{
+	$json['items'][$key] = $response;
 }
+echo json_encode($json);
