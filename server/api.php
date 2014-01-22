@@ -31,18 +31,23 @@ include_once('functions.php');
 					'shield_id' => 'TEXT',
 					'password' => 'TEXT',
 					'hashtags' => TEXT ("#hastag1, #hastag2, [...]")
+
+		//A implémenter : 
 		Add hastag
 			{base_url}/api.php?domain=hashtag&shield_id={shield_id}
 			$_POST expected : 
 					'shield_id' => 'TEXT',
 					'password' => 'TEXT',
-					'hashtag' => TEXT ("#hastag1")
+					'hashtag' => TEXT ("#hastag1"),
+					'action' => 'add'
+		//A implémenter : 
 		Remove hastag
 			{base_url}/api.php?domain=hashtag&shield_id={shield_id}
 			$_POST expected : 
 					'shield_id' => 'TEXT',
 					'password' => 'TEXT',
-					'hastag' => TEXT ("#hastag1")
+					'hastag' => TEXT ("#hastag1"),
+					'action' => 'remove'
 
 	GET (read_only):
 		$_GET expected for all : {shieldId}
