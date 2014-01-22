@@ -276,17 +276,19 @@ function update_shield($shieldId, $userconfig = array())
         die('Exception :'.$e);
     }
 }
+function get_cheat_tweets_count($shieldId)
+{
+    return rand(0,15);
+}
 /*
 	Get tweet count for specific shield
 	Use Twitter API
 */
 function get_tweets_count($shieldId)
 {
-
 	include_once('twitterParser.class.php');
 	$twitter = new twitterParser();
     $hastags = get_hashtags($shieldId);
-
     $query = 'q='.urlencode($hastags);
 
     //Add last tweet ID on request, if it's on database
@@ -295,9 +297,7 @@ function get_tweets_count($shieldId)
         $query.='&since_id='.$since;
     }
     // get all tweets
-    
     $tweets = $twitter->getTweets($query);
-    var_dump($tweets);
     //Have new tweet ? Save last Tweet ID on database for this shield
     if(sizeof($tweets)>0){
     	$lastTweetId = $tweets[0]->getID();
