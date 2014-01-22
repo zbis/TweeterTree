@@ -17,8 +17,12 @@ function get_errors_message()
 	return array(
 		'already_exist' 			=> 'Cette ID de shield est déjà prise',
 		'identification_failed' 	=> 'Erreur lors de l\'indentification du shield',
-		'action_unknow' 			=> ' %f',
+		'action_unknow' 			=> 'Action "%s" inconnue',
         'shield_not_found'          => 'Shield introuvable. Vous pouvez l\'enregistrer en cliquant sur le bouton "Créer mon arbre"',
+        'blinking_time_not_found'   => 'Temps de clignottement introuvable',
+        'led_count_not_found'       => 'Nombre de leds introuvable',
+        'hashtags_not_found'        => 'Hashtag(s) introuvable(s)',
+        'tweets_count_not_found'    => 'Nombre de tweets introuvables'
 		);
 }
 function get_success_message()
@@ -97,10 +101,14 @@ function merge_configs($userconfig)
 	}
 	return $userconfig;
 }
-function get_error($key)
+function get_error($key, $var = false)
 {
-	$errors = get_errors_message();
-	return $errors[$key];
+    $errors = get_errors_message();
+    $error  = $errors[$key];
+    if($var) {
+        $error = sprintf($error, $var);
+    }
+	return $error;
 }
 function get_message($key)
 {
@@ -124,7 +132,7 @@ function default_conf($key)
 function get_hashtags($shieldId)
 {
 	$shield = get_shield($shieldId);
-    return isset($shield['hashtags'])? $shield_request['hashtags'] : false;
+    return isset($shield['hashtags'])? $shield['hashtags'] : false;
 }
 function add_hashtag($shieldId, $hastag)
 {
@@ -158,12 +166,12 @@ function remove_hastag($shieldId, $hastag)
 }
 
 /*
-	shields.blikning_time
+	shields.blinking_time
 */
 function get_blinking_time($shieldId)
 {
 	$shield = get_shield($shieldId);
-    return isset($shield['blikning_time'])? $shield_request['blikning_time'] : false;
+    return isset($shield['blinking_time'])? $shield['blinking_time'] : false;
 }
 
 function set_blinking_time($shieldId, $blinkingTime)
@@ -183,7 +191,7 @@ function set_blinking_time($shieldId, $blinkingTime)
 function get_led_count($shieldId)
 {
 	$shield = get_shield($shieldId);
-    return isset($shield['led_count'])? $shield_request['led_count'] : false;
+    return isset($shield['led_count'])? $shield['led_count'] : false;
 }
 function set_led_count($shieldId, $ledCount)
 {
@@ -228,7 +236,6 @@ function set_last_request($shieldId, $lastTweetId)
 
 function is_authorized($shieldId, $password)
 {
-
 	$shield = get_shield($shieldId, true);
 	return ($shield['password'] == md5($password));
 }
@@ -275,6 +282,7 @@ function update_shield($shieldId, $userconfig = array())
 */
 function get_tweets_count($shieldId)
 {
+
 	include_once('twitterParser.class.php');
 	$twitter = new twitterParser();
     $hastags = get_hashtags($shieldId);
@@ -287,8 +295,9 @@ function get_tweets_count($shieldId)
         $query.='&since_id='.$since;
     }
     // get all tweets
+    
     $tweets = $twitter->getTweets($query);
-
+    var_dump($tweets);
     //Have new tweet ? Save last Tweet ID on database for this shield
     if(sizeof($tweets)>0){
     	$lastTweetId = $tweets[0]->getID();

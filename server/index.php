@@ -193,12 +193,12 @@
 			                data: {shield_id : id, password : password},
 			                dataType : 'json',
 			                success: function( response ) {
-			                	if(response.items){
-				                	if(response.items.autorisation == true)
+			                	if(response.i){
+				                	if(response.i.autorisation == true)
 				                	{
-				                		$('input#led_count').val(response.items[0].led_count);
-				                		$('input#blinking_time').val(response.items[0].blinking_time);
-				                		$('input#hastags').val(response.items[0].hashtags);
+				                		$('input#led_count').val(response.i[0].led_count);
+				                		$('input#blinking_time').val(response.i[0].blinking_time);
+				                		$('input#hastags').val(response.i[0].hashtags);
 				                	}
 			                	}
 			                	displayNotifications(form, response.notifications);

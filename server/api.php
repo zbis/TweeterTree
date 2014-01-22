@@ -2,58 +2,58 @@
 include_once('functions.php');
 /*
 	API Controller Documentation :
-	{base_url}/domain/action/
+	{base_url}/api.php?domain={domain}&shield_id={shield_id}
 	
 	POST (creat or update) :
 		Register shield : 
-			{base_url}/register
+			{base_url}/api.php?domain=register
 			$_POST expected : 
-					'shieldId' => TEXT,
+					'shield_id' => TEXT,
 					'password' => TEXT,
 					'hastags' => TEXT ("#hastag1, #hastag2, [...]")
-					'ledCount' => INT, 
-					'blinkingTime' => INT,
-		Set blinkingTime
-			{base_url}/blinktime/set
-			$_POST expected : 
-					'shieldId' => TEXT,
-					'password' => TEXT,
-					'blinkingTime' => INT,
-		Set ledCount
-			{base_url}/ledcount/set
-			$_POST expected : 
-					'shieldId' => TEXT,
-					'password' => TEXT,
 					'ledCount' => INT,
-		Set hastag
-			{base_url}/hastag/set
+					'blinking_time' => INT,
+		Set blinking_time
+			{base_url}/api.php?domain=blinking_time&shield_id={shield_id}
 			$_POST expected : 
-					'shieldId' => 'shieldid',
-					'password' => 'passphrase',
-					'hastags' => TEXT ("#hastag1, #hastag2, [...]")
+					'shield_id' => TEXT,
+					'password' => TEXT,
+					'blinking_time' => INT,
+		Set ledCount
+			{base_url}/api.php?domain=led_count&shield_id={shield_id}
+			$_POST expected : 
+					'shield_id' => TEXT,
+					'password' => TEXT,
+					'led_count' => INT,
+		Set hastags
+			{base_url}/api.php?domain=hashtags&shield_id={shield_id}
+			$_POST expected : 
+					'shield_id' => 'TEXT',
+					'password' => 'TEXT',
+					'hashtags' => TEXT ("#hastag1, #hastag2, [...]")
 		Add hastag
-			{base_url}/hastag/add
+			{base_url}/api.php?domain=hashtag&shield_id={shield_id}
 			$_POST expected : 
-					'shieldId' => 'shieldid',
-					'password' => 'passphrase',
-					'hastag' => TEXT ("#hastag1")
+					'shield_id' => 'TEXT',
+					'password' => 'TEXT',
+					'hashtag' => TEXT ("#hastag1")
 		Remove hastag
-			{base_url}/hastag/remove
+			{base_url}/api.php?domain=hashtag&shield_id={shield_id}
 			$_POST expected : 
-					'shieldId' => 'shieldid',
-					'password' => 'passphrase',
+					'shield_id' => 'TEXT',
+					'password' => 'TEXT',
 					'hastag' => TEXT ("#hastag1")
 
 	GET (read_only):
 		$_GET expected for all : {shieldId}
 		Hastags : 
-			 {base_url}/hastags/get/{shieldId}
+			 {base_url}/api.php?domain=hashtags&shield_id={shield_id}
 		LedCount : 
-			 {base_url}/led/get/{shieldId}
+			 {base_url}/api.php?domain=led_count&shield_id={shield_id}
 		blinkingTime : 
-			 {base_url}/blinktime/get/{shieldId}
-		lasttweet : 
-			 {base_url}/lasttweet/get/{shieldId}
+			 {base_url}/api.php?domain=blinking_time&shield_id={shield_id}
+		tweetCount : 
+			 {base_url}/api.php?domain=tweets_count&shield_id={shield_id}
 
 */
 $messages = array();
@@ -120,6 +120,7 @@ if(((isset($_GET['shield_id'])) OR (isset($_POST['shield_id']))) && isset($_GET[
 		$functionName = 'get_'.$_GET['domain'];
 		if(function_exists($functionName))
 		{
+
 			$item = $functionName($shieldId);
 			if($item)
 			{
@@ -156,6 +157,6 @@ foreach($messages as $key => $message)
 } 
 foreach($responses as $key => $response)
 {
-	$json['items'][$key] = $response;
+	$json['i'][$key] = $response;
 }
 echo json_encode($json);
