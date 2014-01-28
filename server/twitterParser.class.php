@@ -1,5 +1,7 @@
 <?php
 require('tweet.class.php');
+require_once ('twitteroauth/twitteroauth.php'); 
+
 class twitterParser
 {
     private $realNamePattern = '/\((.*?)\)/';
@@ -15,57 +17,35 @@ class twitterParser
     }
     public function countTweets($q)
     {
-        $tweets = 0;
-        $response = $this->apiRequest($q);
-        if ($response !== FALSE)
-        {
-           $xml = simplexml_load_string($response);
-           $tweets = 0;
-           for($i=0; $i<count($xml->entry); $i++)
-           {
-               $tweets++;
-           }
-         }
-         return $tweets;
+      $tweets = array();
+      $response = $this->apiRequest($q);
+      if ($response->statuses)
+      {
+        return sizeof($response->statuses);
+      }
+      return 0;
     }
     private function apiRequest($q)
     {
-        // get the seach result
-        $ch= curl_init($this->searchURL . $q);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_USERAGENT, (isset($_SERVER['HTTP_USER_AGENT'])? $_SERVER['HTTP_USER_AGENT'] : ''));
-        $response = curl_exec($ch);
-        curl_close($ch);
+        $consumer_key='9XUDqNvf3KqIdVCAcYR0QQ'; //consumer key
+        $consumer_secret='BZNFx7kT0OUmXoVmfCTi9x6yV69oqF9Wo9NCDkubE'; // consumer secret
+        $oauth_token = '402058546-i68KnsgGGPu0fsN8Om9vPGuzveJETQYJ5AiX2K5w'; //oAuth Token
+        $oauth_token_secret = 'On9AdJzZ4Wf3iUfyvZ2gIKsMOfgrnlf50Y5XEZWJqlg5B'; //oAuth Token Secret
+         
+        //creation de l'objet
+        $connection = new TwitterOAuth($consumer_key, $consumer_secret, $oauth_token, $oauth_token_secret);
+        $requete = 'https://api.twitter.com/1.1/search/tweets.json?'.$q;
+        $response = $connection->get($requete);
         return $response;
     }
   function getTweets($q)
   {
     $tweets = array();
     $response = $this->apiRequest($q);
-    if ($response !== FALSE)
+    if ($response->statuses)
     {
-      $xml = simplexml_load_string($response);
-      $tweets = array();
-      
-      for($i=0; $i<count($xml->entry); $i++)
-      {
-        $crtEntry = $xml->entry[$i];
-
-        $account  = (string)$crtEntry->author->uri;
-        $image    = (string)$crtEntry->link[1]->attributes()->href;
-
-        $msg    = str_replace('<a href=', '<a target="_blank" href=', (string)$crtEntry->content);
-        $time = strtotime($crtEntry->published);
-        $urlpart = explode("/",parse_url((string)$crtEntry->link[0]->attributes()->href, PHP_URL_PATH));
-        $id = $urlpart[sizeof($urlpart)-1];
-        // name is in this format "acountname (Real Name)"
-        preg_match($this->realNamePattern, $crtEntry->author->name, $matches);
-        $author = $matches[1];
-
-        $tweets[] = new Tweet($account, $author, $msg, $image, $time, $id);
-      }
+      $tweets = $response->statuses;
     }
-
     return $tweets;
   }
 }

@@ -143,7 +143,7 @@ if(((isset($_GET['shield_id'])) OR (isset($_POST['shield_id']))) && isset($_GET[
 							}
 						}
 					default :
-						$responses[] = $item;
+						$responses[$_GET['domain']] = $item;
 				}
 			}
 			else {
@@ -162,6 +162,23 @@ foreach($messages as $key => $message)
 } 
 foreach($responses as $key => $response)
 {
-	$json['i'][$key] = $response;
+	$json[$key] = $response;
 }
-echo json_encode($json);
+if(!empty($responses) && isset($_GET['card'])) {
+	$xml = '<shield>';
+	if(is_array($responses[$_GET['domain']] )) {
+		foreach($responses[$_GET['domain']] as $key => $resp)
+		{
+			if(!is_int($key)) 
+			{
+				$xml .= "<$key>$resp</$key>";
+			}
+		}
+	} else {
+		$xml .= "<".$_GET['domain'].">".$responses[$_GET['domain']]."</".$_GET['domain'].">";
+	}
+	$xml .= '</shield>';
+	echo $xml;
+} else {
+	echo json_encode($json); 
+}

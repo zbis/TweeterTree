@@ -219,8 +219,12 @@ function get_last_request($shieldId)
 function set_last_request($shieldId, $lastTweetId)
 {
     try {
-    	$sth = prepare_query("UPDATE requests SET last_request=:last_request WHERE shield_id=:shield_id", $shieldId);
-	    $sth->bindParam(':last_request', $lastTweetId);
+        if(get_last_request($shieldId)) {
+            $sth = prepare_query("UPDATE requests SET last_request=:last_request WHERE shield_id=:shield_id", $shieldId);
+        } else {
+            $sth = prepare_query("INSERT INTO requests (shield_id, last_request) VALUES (:shield_id, :last_request)", $shieldId);
+        }
+        $sth->bindParam(':last_request', $lastTweetId);
         return $sth->execute();
     } catch (Exception $e) {
         die('Exception :'.$e);
@@ -289,8 +293,9 @@ function get_tweets_count($shieldId)
 	include_once('twitterParser.class.php');
 	$twitter = new twitterParser();
     $hastags = get_hashtags($shieldId);
-    $query = 'q='.urlencode($hastags);
-
+    $query = 'q='.urlencode(str_replace(', ', ' ', $hastags));
+    
+    $since = get_last_request($shieldId);
     //Add last tweet ID on request, if it's on database
     if(isset($since)) 
     {
@@ -300,10 +305,10 @@ function get_tweets_count($shieldId)
     $tweets = $twitter->getTweets($query);
     //Have new tweet ? Save last Tweet ID on database for this shield
     if(sizeof($tweets)>0){
-    	$lastTweetId = $tweets[0]->getID();
+    	$lastTweetId = $tweets[0]->id_str;
     	set_last_request($shieldId, $lastTweetId);
-    } 
-	return $tweets;
+    }
+	return sizeof($tweets);
 }
 
 

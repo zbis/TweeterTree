@@ -88,7 +88,7 @@
 								</div>
 							</div>
 							<div class="form-group">
-								<label for="blinking_time" class="col-sm-8 control-label" >Temps d'allumage : </label>
+								<label for="blinking_time" class="col-sm-8 control-label" >Fréquence de requête : </label>
 								<div class="col-sm-4">
 									<input type="text" class="form-control" placeholder="Par défaut : <?php echo default_conf('blinking_time'); ?>" id="blinking_time" name="blinking_time">
 								</div>
@@ -193,12 +193,12 @@
 			                data: {shield_id : id, password : password},
 			                dataType : 'json',
 			                success: function( response ) {
-			                	if(response.i){
-				                	if(response.i.autorisation == true)
+			                	if(response) {
+				                	if(response.autorisation == true)
 				                	{
-				                		$('input#led_count').val(response.i[0].led_count);
-				                		$('input#blinking_time').val(response.i[0].blinking_time);
-				                		$('input#hastags').val(response.i[0].hashtags);
+				                		$('input#led_count').val(response.shield.led_count);
+				                		$('input#blinking_time').val(response.shield.blinking_time);
+				                		$('input#hastags').val(response.shield.hashtags);
 				                	}
 			                	}
 			                	displayNotifications(form, response.notifications);
