@@ -8,11 +8,11 @@
 ////////////////////////////////////////////////////////////////////////
 //CONFIGURE
 ////////////////////////////////////////////////////////////////////////
-byte server[] = { 199,16,131,110 }; //ip Address of the server you will connect to
+byte server[] =  { 88,191,185,111 }; //ip Address of the server you will connect to
 
 //The location to go to on the server
 //make sure to keep HTTP/1.0 at the end, this is telling it what type of file it is
-String location = "/~cloeducc/arduino/lighting_tree.php?shield_id=myshield4 HTTP/1.0";
+String location = "/~cloe/arbre-tweets/server/api.php?domain=cheat_tweets_count&shield_id=rany HTTP/1.0";
 
 
 // if need to change the MAC address (Very Rare)

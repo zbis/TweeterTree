@@ -210,7 +210,7 @@ function set_led_count($shieldId, $ledCount)
 
 function get_last_request($shieldId)
 {
-    $result = do_query("SELECT * FROM requests WHERE (shield_id = '$shieldId') LIMIT 1");
+    $result = do_query('SELECT * FROM requests WHERE (shield_id = "'.$shieldId.'") ORDER BY id DESC LIMIT 1');
     //this shield already requested API
     $shield_request = $result->fetch();
     return isset($shield_request['last_request'])? $shield_request['last_request'] : false;

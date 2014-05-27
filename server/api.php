@@ -61,6 +61,7 @@ include_once('functions.php');
 			 {base_url}/api.php?domain=tweets_count&shield_id={shield_id}
 
 */
+			 ini_set('display_errors', 1);
 $messages = array();
 $responses = array();
 if(((isset($_GET['shield_id'])) OR (isset($_POST['shield_id']))) && isset($_GET['domain']))
@@ -127,7 +128,7 @@ if(((isset($_GET['shield_id'])) OR (isset($_POST['shield_id']))) && isset($_GET[
 		{
 
 			$item = $functionName($shieldId);
-			if($item)
+			if($item or $_GET['domain'] == 'tweets_count')
 			{
 				switch($_GET['domain']) {
 					case 'shield':
