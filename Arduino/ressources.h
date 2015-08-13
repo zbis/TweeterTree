@@ -10,5 +10,4 @@ public:
 	static void reboot();
 };
 
-
 #endif

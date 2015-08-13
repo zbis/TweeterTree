@@ -1,10 +1,12 @@
 /*
- *  network.cpp: Library to receive information about a server
+ *  network.cpp: Library to switch on the leds following a schema.
  *
  */
 #include "lightsTree.h"
 
-
+/*
+	Initialization of the leds and play a schema of leds until leaveFunction reach 100
+*/
 void LightsTree::lightsTree(){
     Tlc.init();
 
@@ -28,6 +30,7 @@ void LightsTree::lightsTree(){
 	    Tlc.update();
 		delay(75);
 	    if(leaveFunction>=100){
+	    	//After 100 loops, reboot of the arduino 
 	     	Ressources::reboot();
 	    }
   	}

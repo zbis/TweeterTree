@@ -5,7 +5,6 @@
 #include "network.h"
 
 Network::Network(){
-
 	serverIPAddress = {192,168,0,20};
 	serverPort = 80;
 	connectedToServer = false;
@@ -61,6 +60,7 @@ boolean Network::checkTweet() {
     client.println();
 
     if(delayBeforeReboot >= 5000){
+        //If after 5000 loops no tweet was found, reboot.
         Ressources::reboot();
     }
     if (client.connected() && client.available()) {
