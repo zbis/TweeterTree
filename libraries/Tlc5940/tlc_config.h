@@ -70,13 +70,13 @@
 
 #if DATA_TRANSFER_MODE == TLC_BITBANG
 /** SIN (TLC pin 26) */
-#define SIN_PIN        DEFAULT_BB_SIN_PIN
-#define SIN_PORT       DEFAULT_BB_SIN_PORT
-#define SIN_DDR        DEFAULT_BB_SIN_DDR
+#define SIN_PIN        PD7
+#define SIN_PORT       PORTD
+#define SIN_DDR        DDRD
 /** SCLK (TLC pin 25) */
-#define SCLK_PIN       DEFAULT_BB_SCLK_PIN
-#define SCLK_PORT      DEFAULT_BB_SCLK_PORT
-#define SCLK_DDR       DEFAULT_BB_SCLK_DDR
+#define SCLK_PIN       PD4
+#define SCLK_PORT      PORTD
+#define SCLK_DDR       DDRD
 #endif
 
 
