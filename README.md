@@ -15,8 +15,8 @@ Material:
 Illustrations:
 -------
 
-![Tree](https://raw.github.com/zbis/TweeterTree/design/tree.jpg)
-![Card](https://raw.github.com/zbis/TweeterTree/design/elec.jpg)
+![Tree](https://raw.github.com/zbis/TweeterTree/master/design/tree.jpg)
+![Card](https://raw.github.com/zbis/TweeterTree/master/design/elec.jpg)
 Modifications of librairies to use Ethernet Shield and Tlc5940 together :
 -------
 
