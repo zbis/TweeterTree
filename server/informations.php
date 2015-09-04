@@ -3,7 +3,7 @@
 	define('CONSUMER_SECRET', 			'');
 	define('OAUTH_ACCESS_TOKEN', 		'');
 	define('OAUTH_ACCESS_TOKEN_SECRET', '');
-	define('HASHTAG', '#usa');
+	define('HASHTAG', '#salut');
 
-	define('INFORMATIONS_FILE', __DIR__ .'\informations.php');
+	define('INFORMATIONS_FILE', __DIR__ .'/informations.php');
 ?>

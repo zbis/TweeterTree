@@ -14,7 +14,7 @@
 <link href="assets/css/bootstrap.css" rel="stylesheet">
 
 <!-- Custom styles for this template -->
-<link href="/assets/css/style.css" rel="stylesheet">
+<link href="assets/css/style.css" rel="stylesheet">
 
 <!-- Just for debugging purposes. Don't actually copy this line! -->
 <!--[if lt IE 9]><script src="../../docs-assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
@@ -72,7 +72,7 @@
 			<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
 				<span class="sr-only">TweeterTree</span>
 			</button>
-			<a class="navbar-brand" href="/">TweeterTree</a>
+			<a class="navbar-brand" href="/tweeterTree">TweeterTree</a>
 		</div>
 		<div class="collapse navbar-collapse">
 			<ul id="navigation" class="nav navbar-nav">

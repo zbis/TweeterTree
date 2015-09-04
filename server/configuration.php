@@ -9,6 +9,13 @@ if (isset($_POST['hashtag']) && $_POST['hashtag'] != ''){
 
 	$informationsFile = INFORMATIONS_FILE;
 	$oldHashtag = HASHTAG;
+ 	//modify the statistics when the hashtag is modified
+ 	$dataFile = file_get_contents('dataHashtag.json');
+	$data = json_decode($dataFile);
+	for ($i=0; $i <= 6; $i++) { 
+    	$data->data[$i]->count = 0;
+	}
+	file_put_contents('dataHashtag.json', json_encode($data));
 
 	$fileContent = file_get_contents($informationsFile);
 	$fileContent = str_replace($oldHashtag,$hashtag,$fileContent);
