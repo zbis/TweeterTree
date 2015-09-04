@@ -1,3 +1,4 @@
+
 #include "network.h"
 #include "lightsTree.h"
 
@@ -13,7 +14,6 @@ Areas for improvements
 */
 void setup() {
 	Serial.begin(9600);
-
 	ethernetShield.networkInitialization();
 	ethernetShield.serverConnection();
 }

@@ -5,12 +5,12 @@
 #include "network.h"
 
 Network::Network(){
-	serverIPAddress = {192,168,0,20};
+	serverIPAddress = {192,168,0,253};
 	serverPort = 80;
 	connectedToServer = false;
 	byte arduinoMacAddress[] = { 0x00, 0xAA, 0xBB, 0xCC, 0xDE, 0x02 };
     boolean tweetIsPresent = false;
-    tweetCheckAddress = "/getTweet.php";
+    tweetCheckAddress = "/tweeterTree/getTweet.php";
     keyWordTweet = "TWEET";
     delayBeforeReboot = 0;
 }
@@ -20,6 +20,7 @@ Network::Network(){
 void Network::networkInitialization(){
 	if (Ethernet.begin(arduinoMacAddress) == 0) {
         Serial.println("Failed to configure Ethernet using DHCP");
+        Ressources::reboot();
     }
     arduinoIPAddress = Ethernet.localIP();
 
@@ -42,6 +43,7 @@ void Network::serverConnection() {
     } else {
         connectedToServer = false;
         Serial.println("connection failed");
+        Ressources::reboot();
     }
 }
 /*
