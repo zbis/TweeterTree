@@ -2,13 +2,14 @@
 #define lightsTree_h
 
 #include <SPI.h>
-#include <Tlc5940.h>
+#include "Adafruit_WS2801.h"
 #include "ressources.h"
 
 class LightsTree
 {
 public:
-	LightsTree(){}
-	void lightsTree(void);
+	void lightsTree();
+	void init();
+	Adafruit_WS2801 strip;
 };
 #endif

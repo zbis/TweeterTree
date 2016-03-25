@@ -40,6 +40,15 @@ void Network::serverConnection() {
         connectedToServer = true;
         Serial.println("Connected ! ");
        
+        client.print("GET ");
+        client.print(tweetCheckAddress);
+        client.println(" HTTP/1.1");
+    
+        client.print("Host: ");
+        client.println(serverIPAddress);
+    
+        client.println("Connection: Close");
+        client.println();
     } else {
         connectedToServer = false;
         Serial.println("connection failed");
@@ -50,17 +59,6 @@ void Network::serverConnection() {
     Check if a new tweet is present on the server
 */
 boolean Network::checkTweet() {
-   
-    client.print("GET ");
-    client.print(tweetCheckAddress);
-    client.println(" HTTP/1.1");
-
-    client.print("Host: ");
-    client.println(serverIPAddress);
-
-    client.println("Connection: Close");
-    client.println();
-
     if(delayBeforeReboot >= 5000){
         //If after 5000 loops no tweet was found, reboot.
         Ressources::reboot();

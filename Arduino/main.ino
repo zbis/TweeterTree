@@ -14,6 +14,7 @@ Areas for improvements
 */
 void setup() {
 	Serial.begin(9600);
+    tree.init();
 	ethernetShield.networkInitialization();
 	ethernetShield.serverConnection();
 }
